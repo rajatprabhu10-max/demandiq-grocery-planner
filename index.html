@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DemandIQ | Grocery Demand Planner</title>
+  <style>
+    :root {
+      --green: #16794b;
+      --green-light: #e7f5ed;
+      --ink: #17251d;
+      --muted: #6c7b72;
+      --border: #e2e9e4;
+      --surface: #ffffff;
+      --bg: #f5f8f6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 20px 6%;
+      background: white;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand { font-size: 23px; font-weight: 800; }
+    .brand span { color: var(--green); }
+    .demo-tag {
+      background: var(--green-light);
+      color: var(--green);
+      padding: 7px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    main { max-width: 1150px; margin: 35px auto; padding: 0 20px; }
+    .welcome { margin-bottom: 25px; }
+    .welcome h1 { margin: 0 0 8px; font-size: clamp(26px, 4vw, 36px); }
+    .welcome p { color: var(--muted); margin: 0; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat, .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+    }
+
+    .stat-label { color: var(--muted); font-size: 13px; }
+    .stat-value { font-size: 29px; font-weight: 800; margin-top: 10px; }
+    .stat-note { color: var(--green); font-size: 12px; margin-top: 5px; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+    }
+
+    .panel h2 { margin: 0 0 7px; font-size: 20px; }
+    .panel p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+
+    label { display: block; font-size: 13px; font-weight: 650; margin: 14px 0 7px; }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d5e0d8;
+      border-radius: 9px;
+      font: inherit;
+      background: white;
+    }
+
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 12px 16px;
+      background: var(--green);
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover { background: #105f39; }
+    .secondary { background: #edf5ef; color: var(--green); }
+    .secondary:hover { background: #dceee2; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .full-button { width: 100%; margin-top: 18px; }
+
+    .result {
+      background: var(--green-light);
+      border-radius: 12px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    .result strong { display: block; font-size: 28px; color: var(--green); margin: 5px 0; }
+    .result small { color: #4d705b; }
+
+    .list { display: grid; gap: 10px; }
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .item-name { font-weight: 700; }
+    .item-detail { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .item-actions { display: flex; align-items: center; gap: 8px; }
+    .item-actions button { padding: 7px 10px; }
+    .remove { background: #fff0ef; color: #b13d35; }
+    .remove:hover { background: #ffe0de; }
+    .empty { color: var(--muted); padding: 12px 0; font-size: 14px; }
+
+    footer { text-align: center; color: var(--muted); font-size: 12px; padding: 25px; }
+
+    @media (max-width: 760px) {
+      .stats, .workspace { grid-template-columns: 1fr; }
+      header { padding: 16px 20px; }
+      .stat-value { font-size: 25px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">Demand<span>IQ</span></div>
+    <div class="demo-tag">GROCERY DEMAND PLANNER</div>
+  </header>
+
+  <main>
+    <section class="welcome">
+      <h1>Grocery demand, made smarter.</h1>
+      <p>Plan inventory, estimate demand, and keep your grocery list organized.</p>
+    </section>
+
+    <section class="stats">
+      <div class="stat">
+        <div class="stat-label">Products in your list</div>
+        <div class="stat-value" id="productCount">0</div>
+        <div class="stat-note">Tracked products</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Estimated demand</div>
+        <div class="stat-value" id="totalDemand">0</div>
+        <div class="stat-note">Units for the selected period</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Inventory status</div>
+        <div class="stat-value" id="inventoryStatus">Ready</div>
+        <div class="stat-note">Based on your current list</div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="panel">
+        <h2>Demand planner</h2>
+        <p>Add a product and estimate how much you may need.</p>
+
+        <form id="productForm">
+          <label for="productName">Product name</label>
+          <input id="productName" placeholder="e.g. Milk" required />
+
+          <div class="form-row">
+            <div>
+              <label for="dailyDemand">Daily demand (units)</label>
+              <input id="dailyDemand" type="number" min="0" value="10" required />
+            </div>
+            <div>
+              <label for="days">Planning period</label>
+              <select id="days">
+                <option value="7">7 days</option>
+                <option value="14">14 days</option>
+                <option value="30">30 days</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label for="stock">Current stock</label>
+              <input id="stock" type="number" min="0" value="0" required />
+            </div>
+            <div>
+              <label for="buffer">Safety stock (%)</label>
+              <input id="buffer" type="number" min="0" max="100" value="10" required />
+            </div>
+          </div>
+
+          <button class="full-button" type="submit">Add to grocery plan</button>
+        </form>
+
+        <div class="result" id="estimateResult">
+          <small>Estimated units to prepare</small>
+          <strong id="estimate">0 units</strong>
+          <small id="estimateNote">Add a product to calculate its demand.</small>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Your grocery plan</h2>
+        <p>Products you have added to this planning session.</p>
+        <div id="groceryList" class="list">
+          <div class="empty">Your list is empty. Add a product to begin.</div>
+        </div>
+        <button id="clearList" class="secondary full-button" type="button">Clear grocery plan</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>DemandIQ · Demo planner · Your list stays in this browser session</footer>
+
+  <script>
+    const products = [];
+    const form = document.getElementById("productForm");
+
+    function calculate(daily, days, stock, buffer) {
+      const forecast = daily * days;
+      const safety = Math.ceil(forecast * buffer / 100);
+      return {
+        forecast,
+        safety,
+        prepare: Math.max(0, forecast + safety - stock)
+      };
+    }
+
+    function updateDashboard() {
+      const total = products.reduce((sum, item) => sum + item.prepare, 0);
+      document.getElementById("productCount").textContent = products.length;
+      document.getElementById("totalDemand").textContent = total.toLocaleString();
+      document.getElementById("inventoryStatus").textContent =
+        products.length ? "Planned" : "Ready";
+
+      const list = document.getElementById("groceryList");
+      if (!products.length) {
+        list.innerHTML = '<div class="empty">Your list is empty. Add a product to begin.</div>';
+        return;
+      }
+
+      list.innerHTML = products.map((item, index) => `
+        <div class="item">
+          <div>
+            <div class="item-name">${escapeHTML(item.name)}</div>
+            <div class="item-detail">
+              ${item.daily} units/day · ${item.days} days · Need ${item.prepare} units
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="remove" type="button" onclick="removeProduct(${index})" aria-label="Remove ${escapeHTML(item.name)}">×</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[character]));
+    }
+
+    function removeProduct(index) {
+      products.splice(index, 1);
+      updateDashboard();
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+
+      const name = document.getElementById("productName").value.trim();
+      const daily = Number(document.getElementById("dailyDemand").value);
+      const days = Number(document.getElementById("days").value);
+      const stock = Number(document.getElementById("stock").value);
+      const buffer = Number(document.getElementById("buffer").value);
+
+      if (!name || daily < 0 || stock < 0 || buffer < 0 || buffer > 100) {
+        alert("Please enter valid product and planning details.");
+        return;
+      }
+
+      const result = calculate(daily, days, stock, buffer);
+
+      document.getElementById("estimate").textContent =
+        result.prepare.toLocaleString() + " units";
+      document.getElementById("estimateNote").textContent =
+        `Forecast: ${result.forecast} · Safety stock: ${result.safety} · Current stock: ${stock}`;
+
+      products.push({ name, daily, days, stock, buffer, prepare: result.prepare });
+      updateDashboard();
+      form.reset();
+      document.getElementById("dailyDemand").value = 10;
+      document.getElementById("stock").value = 0;
+      document.getElementById("buffer").value = 10;
+    });
+
+    document.getElementById("clearList").addEventListener("click", () => {
+      products.length = 0;
+      updateDashboard();
+      document.getElementById("estimate").textContent = "0 units";
+      document.getElementById("estimateNote").textContent =
+        "Add a product to calculate its demand.";
+    });
+  </script>
+</body>
+</html>
